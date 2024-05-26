@@ -1,169 +1,80 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+ 
 using namespace std;
  
-// DEBUG CODE 
-void __print(int x) {cerr << x;}
-void __print(long x) {cerr << x;}
-void __print(long long x) {cerr << x;}
-void __print(unsigned x) {cerr << x;}
-void __print(unsigned long x) {cerr << x;}
-void __print(unsigned long long x) {cerr << x;}
-void __print(float x) {cerr << x;}
-void __print(double x) {cerr << x;}
-void __print(long double x) {cerr << x;}
-void __print(char x) {cerr << '\'' << x << '\'';}
-void __print(const char *x) {cerr << '\"' << x << '\"';}
-void __print(const string &x) {cerr << '\"' << x << '\"';}
-void __print(bool x) {cerr << (x ? "true" : "false");}
-
-template<typename T, typename V>
-void __print(const pair<T, V> &x) {cerr << '{'; __print(x.first); cerr << ','; __print(x.second); cerr << '}';}
-template<typename T>
-void __print(const T &x) {int f = 0; cerr << '{'; for (auto &i: x) cerr << (f++ ? "," : ""), __print(i); cerr << "}";}
-void _print() {cerr << "]\n";}
-template <typename T, typename... V>
-void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v...);}
-#ifndef ONLINE_JUDGE
-#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
-#else
-#define debug(x...)
-#endif
-
-
-
-#define      ll         long long
-#define      MAX        1000000007
-#define      mod        LLONG_MAX
-#define      endl       "\n"
-#define      ff         first
-#define      ss         second
-#define      w(t)       ll t; cin >> t; while(t--)
-#define      fastio     ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
-#define      all(a)     (a).begin(), (a).end()
-#define      pb         push_back
-/*-----------------------------------------------------------------------------------*/
-
-//just greater element to right , upper Bound
-int searchToRight(ll num,vector<ll> &a,vector<ll> &distinctCnt,int i)
+#define ll     long long
+#define _test   int _TEST; cin>>_TEST; while(_TEST--)
+#define pb     push_back
+ 
+const int N = 3e5 + 10;
+ 
+ll a[N],cnt[N],ans[N];
+ll pre[N];
+ 
+ll sum(int l,int r)
 {
-    ll n=a.size();
-
-    ll ans=-1;
-    ll l=0,r=n-1;
-    while(l<=r)
-    {
-        ll mid=l+(r-l)/2;
-
-        if(a[mid]>num && distinctCnt[mid]-distinctCnt[i+1]+1>=2)
-        { 
-            ans=mid;
-            r=mid-1;
-        }
-        else
-        {
-            l=mid+1;
-        }
-    }
-
-    return ans;
-} 
-
-//greater element to left 
-int searchToLeft(ll num,vector<ll> &a,vector<ll> &distinctCnt,int i)
-{
-    ll n=a.size();
-    ll ans=-1;
-    ll l=0,r=n-1;
-    while(l<=r)
-    {
-        ll mid=l+(r-l)/2;
-        if(a[mid]>num &&  distinctCnt[i-1]-distinctCnt[mid]>0)
-        {
-            ans=mid;
-            l=mid+1;
-        }
-        else
-        {
-            r=mid-1;
-        }
-    }
-
-    return ans;
+    return pre[r]-pre[l-1];
 }
  
-void solve(){
-    ll n;
-    cin>>n;
-
-    vector<ll> a(n);
-    for(auto &x:a) {
-        cin>>x;
-    }
-
-   
-    vector<ll> pre(n),suff(n),distinctCnt(n);
-    unordered_set<ll> unique;
-    unique.insert(a[0]);
-    distinctCnt[0]=1;
-    pre[0]=a[0];
-    for(ll i=1;i<n;i++)
-    {
-        
-            pre[i]=pre[i-1]+a[i];
-            unique.insert(a[i]);
-            distinctCnt[i]=unique.size();
-    
-    }
-    suff[n-1]=a[n-1];
-    for(ll i=n-2;i>=0;i--)
-    {
-       
-            suff[i]=suff[i+1]+a[i];
-       
-    }
-
-    // debug(distinctCnt);
-    vector<ll> ans(n);
-    for(int i=0;i<n;i++)
-    {   
-       
-        ll l=searchToLeft(suff[i]+a[i],suff,distinctCnt,i),r=searchToRight(pre[i]+a[i],pre,distinctCnt,i);
-
-        // debug(i,l,r);
-        if(l==-1 && r==-1)
-        {
-            ans[i]=-1;
-        }
-        else if(l==-1)
-        {
-            ans[i]=abs(r-i);
-        }
-        else if(r==-1)
-        {
-            ans[i]=abs(l-i);
-        }
-        else
-            ans[i]=min(abs(l-i),abs(r-i));
-
-        // ans[i]=searchToRight(pre[i]+a[i],pre);
-
-        if(i-1>=0 && a[i]<a[i-1]) ans[i]=1;
-        if(i+1<n && a[i]<a[i+1]) ans[i]=1;
-    }
-
-    for(int i=0;i<n;i++)
-        cout<<ans[i]<<" ";
-
-   cout<<endl;
-
-   
-    
+bool ok(int l,int r)
+{
+    if(l==r)
+        return 1;
+    return
+        cnt[r]-cnt[l]>0;
 }
  
+int main()
+{
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        int n;
+        cin>>n;
+        for(int i=1;i<=n;i++)
+        {
+            cin>>a[i];
+            pre[i]=a[i]+pre[i-1];
+            cnt[i]=(a[i]!=a[i-1])+cnt[i-1];
+            ans[i]=INT_MAX;
+        }
  
-int main(){
-    fastio
-    w(t){
-        solve();
+        for(int i=1;i<=n;i++)
+        {
+            if(i>1&&a[i-1]>a[i])
+                ans[i]=1;
+            if(i<n&&a[i+1]>a[i])
+                ans[i]=1;
+ 
+            int l=1,r=i-1;
+            while(l<=r)
+            {
+                ll md=(l+r)>>1;
+                if(sum(md,i-1)>a[i]&&ok(md,i-1))
+                    ans[i]=min(ans[i],i-md),l=md+1;
+                else
+                    r=md-1;
+            }
+ 
+            l=i+1,r=n;
+            while(l<=r)
+            {
+                ll md=(l+r)>>1;
+                if(sum(i+1,md)>a[i] && ok(i+1,md))
+                    ans[i]=min(ans[i],md-i),r=md-1;
+                else
+                    l=md+1;
+            }
+        }
+ 
+        for(int i=1;i<=n;i++)
+        {
+            if(ans[i]==INT_MAX)
+                cout<<-1<<" ";
+            else
+                cout<<ans[i]<<" ";
+        }
+        cout<<"\n";
     }
 }
